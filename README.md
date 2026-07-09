@@ -20,6 +20,19 @@ integration that works with AnyBar works with dost unchanged.
 
 ## Install
 
+### Homebrew
+
+```sh
+brew tap danielfilho/dost https://github.com/danielfilho/dost
+brew install --cask dost
+```
+
+The app is not notarized, so either install with
+`brew install --cask --no-quarantine dost`, or right-click → Open the
+first time you launch it.
+
+### From source
+
 Requires macOS 13+ and Xcode command line tools.
 
 ```sh
