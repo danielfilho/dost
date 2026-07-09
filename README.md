@@ -57,6 +57,8 @@ Start dost:
 
 ```sh
 open -a dost                          # single dot on port 1738
+open -a dost --args --spacing tight   # pass options through open
+dost --ports 1738:build,1739:tests &  # or use the CLI (installed by the cask)
 ```
 
 Change the dot from anywhere, exactly like AnyBar:

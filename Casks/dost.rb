@@ -10,6 +10,7 @@ cask "dost" do
   depends_on macos: :ventura
 
   app "dost.app"
+  binary "#{appdir}/dost.app/Contents/MacOS/dost"
 
   zap trash: "~/Library/Preferences/dev.danielfilho.dost.settings.plist"
 end
