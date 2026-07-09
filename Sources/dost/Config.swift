@@ -10,7 +10,7 @@ struct ConfigError: Error, CustomStringConvertible {
 }
 
 struct Config {
-    static let version = "1.1.0"
+    static let version = "1.2.0"
 
     var ports: [PortSpec] = [PortSpec(port: 1738, title: nil)]
     var initialStyle = "white"

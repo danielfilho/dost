@@ -150,7 +150,7 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
 
         menu.addItem(.separator())
 
-        let quit = NSMenuItem(title: "Quit dost", action: #selector(quit), keyEquivalent: "")
+        let quit = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "")
         quit.target = self
         menu.addItem(quit)
 

@@ -7,10 +7,10 @@ final class IndicatorView: NSView {
         didSet { needsDisplay = true }
     }
 
-    init(title: String?, style: IndicatorStyle) {
+    init(tooltip: String, style: IndicatorStyle) {
         self.style = style
         super.init(frame: .zero)
-        toolTip = title
+        toolTip = tooltip
     }
 
     @available(*, unavailable)

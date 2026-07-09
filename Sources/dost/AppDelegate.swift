@@ -22,8 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let initialStyle = IndicatorStyle.resolve(config.initialStyle) ?? .color(.white)
-        let indicators = config.ports.map { spec in
-            IndicatorView(title: spec.title ?? "port \(spec.port)", style: initialStyle)
+        let indicators = config.ports.map { spec -> IndicatorView in
+            let tooltip = spec.title.map { "\($0) — port \(spec.port)" } ?? "port \(spec.port)"
+            return IndicatorView(tooltip: tooltip, style: initialStyle)
         }
 
         for (spec, view) in zip(config.ports, indicators) {
