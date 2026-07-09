@@ -1,6 +1,6 @@
 cask "dost" do
-  version "1.1.0"
-  sha256 "b10239e81c86a326a7c1d907bd500d4e3513ca1aa303758104cf8d859e3c05f9"
+  version "1.2.0"
+  sha256 "c181af55ff4bb3f954dcb4d83d9bab5e70d9bf5b6c286de6f14890581cf40226"
 
   url "https://github.com/danielfilho/dost/releases/download/v#{version}/dost-#{version}.zip"
   name "dost"
