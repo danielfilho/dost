@@ -7,7 +7,7 @@ cask "dost" do
   desc "AnyBar-compatible status indicators in a floating always-on-top window"
   homepage "https://github.com/danielfilho/dost"
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "dost.app"
 

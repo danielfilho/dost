@@ -27,9 +27,12 @@ brew tap danielfilho/dost https://github.com/danielfilho/dost
 brew install --cask dost
 ```
 
-The app is not notarized, so either install with
-`brew install --cask --no-quarantine dost`, or right-click → Open the
-first time you launch it.
+The app is not notarized, so macOS will complain the first time you launch
+it. Either right-click → Open once, or clear the quarantine flag:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/dost.app
+```
 
 ### From source
 
