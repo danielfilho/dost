@@ -1,6 +1,7 @@
 import AppKit
 
-/// A single 19x19 indicator dot. The whole view drags the window.
+/// A single indicator dot, sized by the dot-size setting. The whole view
+/// drags the window.
 final class IndicatorView: NSView {
     var style: IndicatorStyle {
         didSet { needsDisplay = true }
@@ -18,7 +19,8 @@ final class IndicatorView: NSView {
     }
 
     override var intrinsicContentSize: NSSize {
-        NSSize(width: IndicatorStyle.dotSize, height: IndicatorStyle.dotSize)
+        let size = Settings.shared.dotSize.points
+        return NSSize(width: size, height: size)
     }
 
     override var mouseDownCanMoveWindow: Bool { true }
@@ -61,7 +63,7 @@ final class IndicatorView: NSView {
 
     private func drawGlyph(_ glyph: String, in rect: NSRect) {
         let text = NSAttributedString(string: glyph, attributes: [
-            .font: NSFont.systemFont(ofSize: 12, weight: .bold),
+            .font: NSFont.systemFont(ofSize: rect.height * 0.7, weight: .bold),
             .foregroundColor: NSColor.white,
         ])
         let size = text.size()

@@ -10,12 +10,13 @@ struct ConfigError: Error, CustomStringConvertible {
 }
 
 struct Config {
-    static let version = "1.0.0"
+    static let version = "1.1.0"
 
     var ports: [PortSpec] = [PortSpec(port: 1738, title: nil)]
     var initialStyle = "white"
     var orientationOverride: Orientation?
     var spacingOverride: Spacing?
+    var dotSizeOverride: DotSize?
 
     static let usage = """
     dost \(version) — AnyBar-style status indicators in a floating window
@@ -29,6 +30,8 @@ struct Config {
       -o, --orientation DIR  How indicators stack: vertical | horizontal
                              (persisted across launches)
       -s, --spacing MODE     Gap between indicators: cozy | regular | tight
+                             (persisted across launches)
+      -z, --size SIZE        Dot size: small | medium | big
                              (persisted across launches)
           --init NAME        Initial style for every indicator (default: white)
       -h, --help             Show this help
@@ -85,6 +88,12 @@ struct Config {
                     throw ConfigError(description: "invalid spacing: \(raw) (use cozy, regular or tight)")
                 }
                 config.spacingOverride = spacing
+            case "-z", "--size":
+                let raw = try value(for: arg, from: &args)
+                guard let size = DotSize(rawValue: raw) else {
+                    throw ConfigError(description: "invalid size: \(raw) (use small, medium or big)")
+                }
+                config.dotSizeOverride = size
             case "--init":
                 config.initialStyle = try value(for: arg, from: &args)
             case "-h", "--help":

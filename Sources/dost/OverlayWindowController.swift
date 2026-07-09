@@ -65,6 +65,7 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
     private func applyLayout() {
         stack.orientation = settings.orientation == .horizontal ? .horizontal : .vertical
         stack.spacing = settings.spacing.points
+        stack.arrangedSubviews.forEach { $0.invalidateIntrinsicContentSize() }
 
         let size = container.fittingSize
         var frame = window.frame
@@ -133,6 +134,22 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
 
         menu.addItem(.separator())
 
+        let sizeTitle = NSMenuItem(title: "Size", action: nil, keyEquivalent: "")
+        sizeTitle.isEnabled = false
+        menu.addItem(sizeTitle)
+        for size in DotSize.allCases {
+            let item = NSMenuItem(title: size.rawValue.capitalized,
+                                  action: #selector(selectSize(_:)),
+                                  keyEquivalent: "")
+            item.target = self
+            item.representedObject = size.rawValue
+            item.state = settings.dotSize == size ? .on : .off
+            item.indentationLevel = 1
+            menu.addItem(item)
+        }
+
+        menu.addItem(.separator())
+
         let quit = NSMenuItem(title: "Quit dost", action: #selector(quit), keyEquivalent: "")
         quit.target = self
         menu.addItem(quit)
@@ -151,6 +168,13 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
         guard let raw = sender.representedObject as? String,
               let spacing = Spacing(rawValue: raw) else { return }
         settings.spacing = spacing
+        applyLayout()
+    }
+
+    @objc private func selectSize(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let size = DotSize(rawValue: raw) else { return }
+        settings.dotSize = size
         applyLayout()
     }
 

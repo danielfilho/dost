@@ -8,9 +8,6 @@ enum IndicatorStyle {
     case adaptiveHollow
     case image(NSImage)
 
-    /// Point size of every indicator, matching AnyBar's 19x19 images.
-    static let dotSize: CGFloat = 19
-
     static func resolve(_ name: String) -> IndicatorStyle? {
         switch name {
         case "white": return .color(.white)
@@ -40,7 +37,6 @@ enum IndicatorStyle {
                 let path = directory.appendingPathComponent(file) as String
                 let expanded = NSString(string: path).expandingTildeInPath
                 if let image = NSImage(contentsOfFile: expanded) {
-                    image.size = NSSize(width: dotSize, height: dotSize)
                     return image
                 }
             }

@@ -17,6 +17,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let spacing = config.spacingOverride {
             settings.spacing = spacing
         }
+        if let dotSize = config.dotSizeOverride {
+            settings.dotSize = dotSize
+        }
 
         let initialStyle = IndicatorStyle.resolve(config.initialStyle) ?? .color(.white)
         let indicators = config.ports.map { spec in

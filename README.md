@@ -15,6 +15,7 @@ integration that works with AnyBar works with dost unchanged.
   of dots, each on its own UDP port.
 - **Stacking** — indicators stack vertically or horizontally.
 - **Spacing** — three densities: `cozy`, `regular`, `tight`.
+- **Sizes** — three dot sizes: `small`, `medium`, `big`.
 - **Always on top** — visible over full-screen apps and on every Space.
 
 ## Install
@@ -81,18 +82,19 @@ echo -n "red"    | nc -4u -w0 localhost 1739   # tests failing
 echo -n "yellow" | nc -4u -w0 localhost 1740   # deploy in progress
 ```
 
-### Stacking and spacing
+### Stacking, spacing and size
 
 Right-click the dots for a menu with all options, or set them at launch:
 
 ```sh
-dost --orientation horizontal --spacing tight
+dost --orientation horizontal --spacing tight --size small
 ```
 
 - **Orientation**: `vertical` (default) or `horizontal`
 - **Spacing**: `cozy`, `regular` (default), or `tight`
+- **Size**: `small`, `medium`, or `big` (default)
 
-Both are persisted, so they only need to be set once.
+All three are persisted, so they only need to be set once.
 
 ### Options
 
@@ -101,6 +103,7 @@ Both are persisted, so they only need to be set once.
                        :title used as tooltip (default: 1738)
 -o, --orientation DIR  vertical | horizontal (persisted)
 -s, --spacing MODE     cozy | regular | tight (persisted)
+-z, --size SIZE        small | medium | big (persisted)
     --init NAME        Initial style for every indicator (default: white)
 -h, --help
     --version

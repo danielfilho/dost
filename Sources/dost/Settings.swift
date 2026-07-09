@@ -5,6 +5,20 @@ enum Orientation: String, CaseIterable {
     case horizontal
 }
 
+enum DotSize: String, CaseIterable {
+    case small
+    case medium
+    case big
+
+    var points: CGFloat {
+        switch self {
+        case .small: return 11
+        case .medium: return 15
+        case .big: return 19
+        }
+    }
+}
+
 enum Spacing: String, CaseIterable {
     case cozy
     case regular
@@ -29,6 +43,7 @@ final class Settings {
     private enum Key {
         static let orientation = "orientation"
         static let spacing = "spacing"
+        static let dotSize = "dotSize"
         static let originX = "windowOriginX"
         static let originY = "windowOriginY"
     }
@@ -41,6 +56,11 @@ final class Settings {
     var spacing: Spacing {
         get { defaults.string(forKey: Key.spacing).flatMap(Spacing.init) ?? .regular }
         set { defaults.set(newValue.rawValue, forKey: Key.spacing) }
+    }
+
+    var dotSize: DotSize {
+        get { defaults.string(forKey: Key.dotSize).flatMap(DotSize.init) ?? .big }
+        set { defaults.set(newValue.rawValue, forKey: Key.dotSize) }
     }
 
     var windowOrigin: NSPoint? {
