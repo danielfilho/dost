@@ -24,6 +24,7 @@ integration that works with AnyBar works with dost unchanged.
 
 ```sh
 brew tap danielfilho/dost https://github.com/danielfilho/dost
+brew trust danielfilho/dost   # required on Homebrew 6+
 brew install --cask dost
 ```
 
