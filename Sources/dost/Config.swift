@@ -12,7 +12,9 @@ struct ConfigError: Error, CustomStringConvertible {
 struct Config {
     static let version = "1.2.1"
 
-    var ports: [PortSpec] = [PortSpec(port: 1738, title: nil)]
+    static let defaultPorts = [PortSpec(port: 1738, title: nil)]
+
+    var portsOverride: [PortSpec]?
     var initialStyle = "white"
     var orientationOverride: Orientation?
     var spacingOverride: Spacing?
@@ -27,6 +29,8 @@ struct Config {
       -p, --ports LIST       Comma-separated UDP ports, each with an optional
                              :title used as tooltip (default: 1738)
                              e.g. --ports 1738:build,1739:tests
+                             (persisted across launches; dots can also be
+                             added/removed from the right-click menu)
       -o, --orientation DIR  How indicators stack: vertical | horizontal
                              (persisted across launches)
       -s, --spacing MODE     Gap between indicators: cozy | regular | tight
@@ -57,14 +61,14 @@ struct Config {
         var config = Config()
 
         if let env = environment["DOST_PORTS"] {
-            config.ports = try parsePorts(env)
+            config.portsOverride = try parsePorts(env)
         } else if let env = environment["ANYBAR_PORT"] {
             guard let port = UInt16(env) else {
                 throw ConfigError(description: "invalid ANYBAR_PORT: \(env)")
             }
-            config.ports = [PortSpec(port: port, title: environment["ANYBAR_TITLE"])]
+            config.portsOverride = [PortSpec(port: port, title: environment["ANYBAR_TITLE"])]
         } else if let title = environment["ANYBAR_TITLE"] {
-            config.ports = [PortSpec(port: 1738, title: title)]
+            config.portsOverride = [PortSpec(port: 1738, title: title)]
         }
 
         if let env = environment["DOST_INIT"] ?? environment["ANYBAR_INIT"] {
@@ -75,7 +79,7 @@ struct Config {
         while let arg = args.next() {
             switch arg {
             case "-p", "--ports":
-                config.ports = try parsePorts(try value(for: arg, from: &args))
+                config.portsOverride = try parsePorts(try value(for: arg, from: &args))
             case "-o", "--orientation":
                 let raw = try value(for: arg, from: &args)
                 guard let orientation = Orientation(rawValue: raw) else {
@@ -117,7 +121,13 @@ struct Config {
         return value
     }
 
-    private static func parsePorts(_ list: String) throws -> [PortSpec] {
+    static func serializePorts(_ specs: [PortSpec]) -> String {
+        specs.map { spec in
+            spec.title.map { "\(spec.port):\($0)" } ?? "\(spec.port)"
+        }.joined(separator: ",")
+    }
+
+    static func parsePorts(_ list: String) throws -> [PortSpec] {
         let specs = try list.split(separator: ",").map { entry -> PortSpec in
             let parts = entry.split(separator: ":", maxSplits: 1)
             guard let first = parts.first, let port = UInt16(first) else {

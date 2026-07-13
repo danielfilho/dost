@@ -46,6 +46,25 @@ final class Settings {
         static let dotSize = "dotSize"
         static let originX = "windowOriginX"
         static let originY = "windowOriginY"
+        static let ports = "ports"
+    }
+
+    /// Persisted port list, stored in the same "port:title,…" format as
+    /// --ports. nil when never set (or unreadable), in which case the
+    /// default port applies.
+    var ports: [PortSpec]? {
+        get {
+            guard let raw = defaults.string(forKey: Key.ports),
+                  let specs = try? Config.parsePorts(raw) else { return nil }
+            return specs
+        }
+        set {
+            guard let specs = newValue, !specs.isEmpty else {
+                defaults.removeObject(forKey: Key.ports)
+                return
+            }
+            defaults.set(Config.serializePorts(specs), forKey: Key.ports)
+        }
     }
 
     var orientation: Orientation {

@@ -87,11 +87,18 @@ bash -c 'echo -n "green" > /dev/udp/localhost/1738'
 
 ### Multiple indicators
 
-Give each indicator its own port, with an optional title shown as a tooltip:
+Give each indicator its own port, with an optional title:
 
 ```sh
 dost --ports 1738:build,1739:tests,1740:deploy
 ```
+
+Hovering a dot shows its title, port, and current style, e.g.
+`build — port 1738 — green`.
+
+Dots can also be added and removed at runtime: right-click the dots and use
+**Add Dot…** (port plus optional name) or **Remove Dot**. The port list is
+persisted across launches; passing `--ports` (or `DOST_PORTS`) replaces it.
 
 Then talk to each one independently:
 
@@ -119,7 +126,7 @@ All three are persisted, so they only need to be set once.
 
 ```
 -p, --ports LIST       Comma-separated UDP ports, each with an optional
-                       :title used as tooltip (default: 1738)
+                       :title used as tooltip (default: 1738, persisted)
 -o, --orientation DIR  vertical | horizontal (persisted)
 -s, --spacing MODE     cozy | regular | tight (persisted)
 -z, --size SIZE        small | medium | big (persisted)

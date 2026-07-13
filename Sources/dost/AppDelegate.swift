@@ -2,7 +2,6 @@ import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let config: Config
-    private var servers: [UDPServer] = []
     private var controller: OverlayWindowController?
 
     init(config: Config) {
@@ -20,37 +19,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let dotSize = config.dotSizeOverride {
             settings.dotSize = dotSize
         }
-
-        let initialStyle = IndicatorStyle.resolve(config.initialStyle) ?? .color(.white)
-        let indicators = config.ports.map { spec -> IndicatorView in
-            let tooltip = spec.title.map { "\($0) — port \(spec.port)" } ?? "port \(spec.port)"
-            return IndicatorView(tooltip: tooltip, style: initialStyle)
+        if let ports = config.portsOverride {
+            settings.ports = ports
         }
 
-        for (spec, view) in zip(config.ports, indicators) {
+        let specs = settings.ports ?? Config.defaultPorts
+        var dots: [Dot] = []
+        for spec in specs {
             do {
-                let server = try UDPServer(port: spec.port) { [weak view] message in
-                    if message == "quit" {
-                        NSApp.terminate(nil)
-                        return
-                    }
-                    guard let style = IndicatorStyle.resolve(message) else {
-                        FileHandle.standardError.write(Data("dost: unknown message \"\(message)\" on port \(spec.port)\n".utf8))
-                        return
-                    }
-                    view?.style = style
-                }
-                servers.append(server)
+                dots.append(try Dot(port: spec.port, title: spec.title, initialStyle: config.initialStyle))
             } catch {
                 FileHandle.standardError.write(Data("dost: \(error)\n".utf8))
             }
         }
 
-        guard !servers.isEmpty else {
+        guard !dots.isEmpty else {
             FileHandle.standardError.write(Data("dost: no port could be bound, exiting\n".utf8))
             exit(1)
         }
 
-        controller = OverlayWindowController(indicators: indicators)
+        controller = OverlayWindowController(dots: dots, initialStyle: config.initialStyle)
     }
 }

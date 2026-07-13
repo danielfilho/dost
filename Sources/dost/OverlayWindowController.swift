@@ -24,8 +24,12 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
     private let stack = NSStackView()
     private let container = ContainerView()
     private let settings = Settings.shared
+    private var dots: [Dot]
+    private let initialStyle: String
 
-    init(indicators: [IndicatorView]) {
+    init(dots: [Dot], initialStyle: String) {
+        self.dots = dots
+        self.initialStyle = initialStyle
         window = OverlayWindow(
             contentRect: NSRect(x: 0, y: 0, width: 100, height: 100),
             styleMask: .borderless,
@@ -43,7 +47,7 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
         window.delegate = self
 
         stack.translatesAutoresizingMaskIntoConstraints = false
-        indicators.forEach(stack.addArrangedSubview)
+        dots.forEach { stack.addArrangedSubview($0.view) }
 
         container.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -150,11 +154,105 @@ final class OverlayWindowController: NSObject, NSWindowDelegate {
 
         menu.addItem(.separator())
 
+        let add = NSMenuItem(title: "Add Dot…", action: #selector(promptAddDot), keyEquivalent: "")
+        add.target = self
+        menu.addItem(add)
+
+        let remove = NSMenuItem(title: "Remove Dot", action: nil, keyEquivalent: "")
+        if dots.count > 1 {
+            let submenu = NSMenu()
+            for dot in dots {
+                let label = dot.title.map { "\($0) — port \(dot.port)" } ?? "port \(dot.port)"
+                let item = NSMenuItem(title: label, action: #selector(removeDot(_:)), keyEquivalent: "")
+                item.target = self
+                item.representedObject = dot.port
+                submenu.addItem(item)
+            }
+            remove.submenu = submenu
+        }
+        menu.addItem(remove)
+
+        menu.addItem(.separator())
+
         let quit = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "")
         quit.target = self
         menu.addItem(quit)
 
         return menu
+    }
+
+    // MARK: - Add / remove dots
+
+    @objc private func promptAddDot() {
+        let alert = NSAlert()
+        alert.messageText = "Add Dot"
+        alert.informativeText = "The dot listens for AnyBar-style messages on the given UDP port."
+        alert.addButton(withTitle: "Add")
+        alert.addButton(withTitle: "Cancel")
+
+        let portField = NSTextField(frame: NSRect(x: 0, y: 30, width: 220, height: 22))
+        portField.placeholderString = "Port (e.g. 1739)"
+        let nameField = NSTextField(frame: NSRect(x: 0, y: 0, width: 220, height: 22))
+        nameField.placeholderString = "Name (optional)"
+        portField.nextKeyView = nameField
+        nameField.nextKeyView = portField
+
+        let accessory = NSView(frame: NSRect(x: 0, y: 0, width: 220, height: 52))
+        accessory.addSubview(portField)
+        accessory.addSubview(nameField)
+        alert.accessoryView = accessory
+        alert.window.initialFirstResponder = portField
+
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        let portText = portField.stringValue.trimmingCharacters(in: .whitespaces)
+        guard let port = UInt16(portText), port > 0 else {
+            showError("\"\(portText)\" is not a valid port (1–65535).")
+            return
+        }
+        guard !dots.contains(where: { $0.port == port }) else {
+            showError("There is already a dot on port \(port).")
+            return
+        }
+        // Commas would break the persisted port-list format.
+        let name = nameField.stringValue
+            .replacingOccurrences(of: ",", with: "")
+            .trimmingCharacters(in: .whitespaces)
+
+        do {
+            let dot = try Dot(port: port, title: name.isEmpty ? nil : name, initialStyle: initialStyle)
+            dots.append(dot)
+            stack.addArrangedSubview(dot.view)
+            persistDots()
+            applyLayout()
+        } catch {
+            showError("\(error)")
+        }
+    }
+
+    @objc private func removeDot(_ sender: NSMenuItem) {
+        guard let port = sender.representedObject as? UInt16,
+              let index = dots.firstIndex(where: { $0.port == port }),
+              dots.count > 1 else { return }
+        let dot = dots.remove(at: index)
+        stack.removeArrangedSubview(dot.view)
+        dot.view.removeFromSuperview()
+        persistDots()
+        applyLayout()
+    }
+
+    private func persistDots() {
+        settings.ports = dots.map(\.spec)
+    }
+
+    private func showError(_ message: String) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "dost"
+        alert.informativeText = message
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
     }
 
     @objc private func selectOrientation(_ sender: NSMenuItem) {
